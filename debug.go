@@ -17,14 +17,14 @@ var excludes []*regexp.Regexp
 var output io.Writer = os.Stderr
 var last = time.Now()
 
-type outputType int
+type handleCmd int
 
 const (
-	printType outputType = iota
-	printfType
-	printlnType
-	enabledType
-	nameType
+	printCmd handleCmd = iota
+	printfCmd
+	printlnCmd
+	enabledCmd
+	nameCmd
 )
 
 func init() {
@@ -62,13 +62,13 @@ func (log Logger) Printf(format string, a ...interface{}) {
 
 func (log Logger) Enabled() bool {
 	var enabled bool
-	log(enabledType, &enabled)
+	log(enabledCmd, &enabled)
 	return enabled
 }
 
 func (log Logger) Name() string {
 	var name string
-	log(nameType, &name)
+	log(nameCmd, &name)
 	return name
 }
 
@@ -83,29 +83,29 @@ func handle(name string, enabled bool, a ...interface{}) {
 	}
 
 	switch cmd := a[0].(type) {
-	case outputType:
+	case handleCmd:
 		switch cmd {
-		case printType:
+		case printCmd:
 			fallthrough
-		case printlnType:
+		case printlnCmd:
 			writeln(name, enabled, a[1:]...)
-		case printfType:
+		case printfCmd:
 			if format, ok := a[1].(string); ok {
 				writef(name, enabled, format, a[2:]...)
 			} else {
-				panic("")
+				panic("unexpected type for printfCmd argument")
 			}
-		case enabledType:
+		case enabledCmd:
 			if result, ok := a[1].(*bool); ok {
 				*result = enabled
 			} else {
-				panic("")
+				panic("unexpected type for enabledCmd argument")
 			}
-		case nameType:
+		case nameCmd:
 			if result, ok := a[1].(*string); ok {
 				*result = name
 			} else {
-				panic("")
+				panic("unexpected type for nameCmd argument")
 			}
 		}
 	case string:
