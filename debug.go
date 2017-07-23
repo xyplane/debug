@@ -46,18 +46,17 @@ func (log Logger) F(format string, a ...interface{}) {
 }
 
 func (log Logger) Print(a ...interface{}) {
-	args := [10]interface{}{printType}
-	log(append(args[1:], a...)...)
+	log.Println(a...)
 }
 
 func (log Logger) Println(a ...interface{}) {
-	args := [10]interface{}{printlnType}
-	log(append(args[1:], a...)...)
+	args := [10]interface{}{printlnCmd}
+	log(append(args[:1], a...)...)
 }
 
 func (log Logger) Printf(format string, a ...interface{}) {
-	args := [10]interface{}{printfType}
-	log(append(args[1:], a...)...)
+	args := [10]interface{}{printfCmd, format}
+	log(append(args[:2], a...)...)
 }
 
 func (log Logger) Enabled() bool {

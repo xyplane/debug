@@ -57,6 +57,22 @@ func TestDebugger(t *testing.T) {
 	}
 	buffer.Reset()
 
+	time.Sleep(105 * time.Millisecond)
+
+	child1.F("Message for %s logger", child1.Name())
+	if ok, _ := regexp.Match("  test:child1 \\+10\\dms: Message for test:child1 logger\n", buffer.Bytes()); !ok {
+		t.Fatalf("Logger '%s' unexpected printf output: '%s'", child1.Name(), string(buffer.Bytes()))
+	}
+	buffer.Reset()
+
+	time.Sleep(1100 * time.Millisecond)
+
+	child1.Ln("Message", "for", "test:child1", "logger")
+	if ok, _ := regexp.Match("  test:child1 \\+1s: Message for test:child1 logger\n", buffer.Bytes()); !ok {
+		t.Fatalf("Logger '%s' unexpected println output: '%s'", child1.Name(), string(buffer.Bytes()))
+	}
+	buffer.Reset()
+
 	child2 := debug.Child("child2")
 	if child2.Name() != "test:child2" {
 		t.Fatalf("Logger name expecting 'test:child2' found '%s'", child2.Name())
